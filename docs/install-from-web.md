@@ -40,7 +40,9 @@ Response:
     {"success":true,"message":null,"messages":null,"data":{"html":"...","pluginuptodate":-1}}
 
 For Joomla 3 the same JSON is wrapped as `jedapps_jsonpcallback({...})` and served as
-`application/javascript`. Only `data.html` is used.
+`application/javascript`. `data.html` is the page. `data.pluginuptodate` follows the `pv` parameter
+(base64 plugin version): 1 from 2.1.2, 0 from 1.0.5, otherwise -1. Joomla 3's plugin shows an update
+notice for anything below 1. Joomla 4 and up ignore it.
 
 ### Two markups, chosen by the release
 
