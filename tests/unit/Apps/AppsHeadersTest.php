@@ -120,5 +120,7 @@ final class AppsHeadersTest extends TestCase
         $this->assertTrue($decoded['success']);
         $this->assertSame('<p>é/x</p>', $decoded['data']['html']);
         $this->assertArrayHasKey('pluginuptodate', $decoded['data']);
+        $this->assertSame(-1, $decoded['data']['pluginuptodate']);
+        $this->assertSame(1, json_decode(AppsResult::page('x', AppsResult::KIND_BROWSE, 1)->body, true)['data']['pluginuptodate']);
     }
 }

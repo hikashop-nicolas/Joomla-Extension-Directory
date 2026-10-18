@@ -156,12 +156,12 @@ final class AppsRequestTest extends TestCase
     public static function searchTerms(): array
     {
         return [
-            'client format'   => ['akeeba_backup', 'akeeba backup'],
-            'upper case'      => ['SEO', 'seo'],
-            'url encoded'     => ['site%20map', 'site map'],
-            'wildcards gone'  => ['100%_free', '100 free'],
-            'quotes and tags' => ['<b>"x"</b>', 'b x b'],
-            'unicode letters' => ['café', 'café'],
+            'client format'    => ['akeeba_backup', 'akeeba backup'],
+            'upper case'       => ['SEO', 'seo'],
+            'url encoded'      => ['site%20map', 'site map'],
+            'wildcards gone'   => ['100%_free', '100 free'],
+            'quotes and tags'  => ['<b>"x"</b>', 'b x b'],
+            'unicode letters'  => ['café', 'café'],
             'only punctuation' => ['%%%', ''],
         ];
     }
@@ -194,13 +194,13 @@ final class AppsRequestTest extends TestCase
     public static function versions(): array
     {
         return [
-            'current is the release'  => [['release' => '5.4', 'filter_version' => 'current'], 5],
-            'explicit major'          => [['release' => '5.4', 'filter_version' => '4'], 4],
-            'all versions'            => [['release' => '5.4', 'filter_version' => 'all'], null],
-            'nonsense filter'         => [['release' => '5.4', 'filter_version' => 'x;y'], 5],
-            'no release'              => [[], null],
-            'nonsense release'        => [['release' => 'abc'], null],
-            'absurd major'            => [['filter_version' => '99999'], null],
+            'current is the release' => [['release' => '5.4', 'filter_version' => 'current'], 5],
+            'explicit major'         => [['release' => '5.4', 'filter_version' => '4'], 4],
+            'all versions'           => [['release' => '5.4', 'filter_version' => 'all'], null],
+            'nonsense filter'        => [['release' => '5.4', 'filter_version' => 'x;y'], 5],
+            'no release'             => [[], null],
+            'nonsense release'       => [['release' => 'abc'], null],
+            'absurd major'           => [['filter_version' => '99999'], null],
         ];
     }
 
@@ -231,5 +231,35 @@ final class AppsRequestTest extends TestCase
         $key = AppsRequest::fromQuery(['filter_search' => '../../etc/passwd', 'release' => '6.0'])->cacheKey();
 
         $this->assertMatchesRegularExpression('/^[a-z0-9_-]+$/i', $key);
+    }
+
+    /**
+     * @dataProvider pluginVersions
+     */
+    public function testThePluginVersionDecidesTheUpdateNotice(string $pv, int $expected): void
+    {
+        $this->assertSame($expected, AppsRequest::fromQuery(['pv' => $pv])->pluginStatus);
+    }
+
+    public static function pluginVersions(): array
+    {
+        return [
+            'current, base64'   => [base64_encode('2.1.2'), 1],
+            'newer'             => [base64_encode('2.2.0'), 1],
+            'plain'             => ['2.1.2', 1],
+            'works but old'     => [base64_encode('1.1.1'), 0],
+            'oldest that works' => [base64_encode('1.0.5'), 0],
+            'too old'           => [base64_encode('1.0.4'), -1],
+            'missing'           => ['', -1],
+            'garbage'           => ['!!', -1],
+        ];
+    }
+
+    public function testThePluginStatusIsPartOfTheCacheKey(): void
+    {
+        $this->assertNotSame(
+            AppsRequest::fromQuery(['pv' => base64_encode('2.1.2')])->cacheKey(),
+            AppsRequest::fromQuery(['pv' => base64_encode('1.0.5')])->cacheKey()
+        );
     }
 }

@@ -61,7 +61,7 @@ class DisplayController extends BaseController
 
         $query = [];
 
-        foreach (['view', 'id', 'filter_search', 'ordering', 'release', 'filter_version', 'callback'] as $name) {
+        foreach (['view', 'id', 'filter_search', 'ordering', 'release', 'filter_version', 'callback', 'pv'] as $name) {
             $query[$name] = $input->get($name, '', 'raw');
         }
 

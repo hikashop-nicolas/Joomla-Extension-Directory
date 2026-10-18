@@ -43,6 +43,10 @@ final class AppsRequest
     /** Joomla 4 is the first release whose client takes the Bootstrap 5 markup; older ones, and unknown ones, get the old. */
     public const FIRST_BOOTSTRAP_RELEASE = 4;
 
+    /** Newest client plugin (answer 1) and oldest one that still works (answer 0); older ones are told to update. */
+    public const PLUGIN_LATEST = '2.1.2';
+    public const PLUGIN_WORKS  = '1.0.5';
+
     /** The fixed name Joomla 3's plugin uses, and what jQuery generates when none is set. */
     public const CALLBACK_PATTERN = '/^(jedapps_jsonpcallback|jQuery[0-9_]{10,60})$/';
 
@@ -55,7 +59,8 @@ final class AppsRequest
         public readonly bool $legacy = false,
         public readonly string $callback = '',
         public readonly bool $allVersions = false,
-        public readonly bool $searchTooShort = false
+        public readonly bool $searchTooShort = false,
+        public readonly int $pluginStatus = -1
     ) {
     }
 
@@ -118,7 +123,8 @@ final class AppsRequest
             $release === null || $release < self::FIRST_BOOTSTRAP_RELEASE,
             self::callback(self::scalar($query, 'callback')),
             strtolower(self::scalar($query, 'filter_version')) === 'all',
-            $search !== '' && mb_strlen($search) < $searchMinimum
+            $search !== '' && mb_strlen($search) < $searchMinimum,
+            self::pluginStatus(self::scalar($query, 'pv'))
         );
     }
 
@@ -134,6 +140,28 @@ final class AppsRequest
         $raw = trim((string) preg_replace('/\s+/u', ' ', $raw));
 
         return trim(mb_substr($raw, 0, self::SEARCH_MAX_LENGTH));
+    }
+
+    /**
+     * 1 when the client plugin version (pv, base64 or plain) is current, 0 when it works but is
+     * old, -1 otherwise. Joomla 3's plugin shows an update notice for anything below 1.
+     *
+     * @since 4.0.0
+     */
+    public static function pluginStatus(string $pv): int
+    {
+        $decoded = base64_decode($pv, true);
+        $version = preg_replace('/[^\d.]/', '', $decoded !== false && $decoded !== '' ? $decoded : $pv) ?? '';
+
+        if ($version === '') {
+            return -1;
+        }
+
+        if (version_compare($version, self::PLUGIN_LATEST, '>=')) {
+            return 1;
+        }
+
+        return version_compare($version, self::PLUGIN_WORKS, '>=') ? 0 : -1;
     }
 
     /**
@@ -204,13 +232,14 @@ final class AppsRequest
     public function cacheKey(): string
     {
         return sprintf(
-            '%s-%d-%s-%s-%s-%s',
+            '%s-%d-%s-%s-%s-%s-p%d',
             $this->view,
             $this->id,
             md5($this->search),
             $this->ordering === '' ? 'default' : $this->ordering,
             $this->major === null ? 'all' : (string) $this->major,
-            $this->legacy ? 'legacy' : 'current'
+            $this->legacy ? 'legacy' : 'current',
+            $this->pluginStatus + 1
         );
     }
 

@@ -61,6 +61,7 @@ const ok = (name) => { results.push(name); console.log('  ok  ' + name); };
 
   await until('home page of the directory', () => $()('#jed-container .com-apps-container .item').length > 3);
   if (!$()('#com-apps-searchbox').length || !$()('#search-reset').length || !$()('#com-apps-ordering').length) throw new Error('toolbar missing');
+  if ($()('.j-jed-message').length) throw new Error('the client shows its plugin update notice');
   ok('home page rendered by the J3 client: ' + $()('#jed-container .item').length + ' cards');
 
   const hasOnclick = $()('#jed-container .thumbnail > div[onclick]').first();

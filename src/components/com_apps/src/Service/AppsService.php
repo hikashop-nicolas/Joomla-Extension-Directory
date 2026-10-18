@@ -54,7 +54,8 @@ class AppsService
 
             return AppsResult::page(
                 $renderer->extension($request, $item, $categories, $current, $this->catalogue->versionLabels()),
-                AppsResult::KIND_BROWSE
+                AppsResult::KIND_BROWSE,
+                $request->pluginStatus
             );
         }
 
@@ -70,7 +71,8 @@ class AppsService
 
         return AppsResult::page(
             $renderer->listing($request, $categories, $items, $current),
-            $request->isSearch() ? AppsResult::KIND_SEARCH : AppsResult::KIND_BROWSE
+            $request->isSearch() ? AppsResult::KIND_SEARCH : AppsResult::KIND_BROWSE,
+            $request->pluginStatus
         );
     }
 

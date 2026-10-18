@@ -71,8 +71,7 @@ class AppsCatalogue
     {
         $db    = $this->db;
         $query = $this->baseQuery()
-            ->select($db->quoteName(self::COLUMNS))
-            ->order(AppsRequest::ORDERINGS[$request->ordering]);
+            ->select($db->quoteName(self::COLUMNS));
 
         if ($request->view === 'category') {
             $ids = self::subtreeIds($categories, $request->id);
@@ -95,6 +94,21 @@ class AppsCatalogue
             $query->where('(' . $db->quoteName('a.name') . ' LIKE ' . $like
                 . ' OR ' . $db->quoteName('a.intro') . ' LIKE ' . $like . ')');
         }
+
+        // A name that matches every term comes first, as on the old directory
+        $inName = [];
+
+        foreach (explode(' ', $request->search) as $term) {
+            if ($term !== '') {
+                $inName[] = $db->quoteName('a.name') . ' LIKE ' . $query->quote('%' . $db->escape($term, true) . '%', false);
+            }
+        }
+
+        if ($inName !== []) {
+            $query->order('(' . implode(' AND ', $inName) . ') DESC');
+        }
+
+        $query->order(AppsRequest::ORDERINGS[$request->ordering]);
 
         $db->setQuery($query, 0, $this->maxItems);
 

@@ -33,13 +33,13 @@ final class AppsResult
     ) {
     }
 
-    public static function page(string $html, string $kind): self
+    public static function page(string $html, string $kind, int $pluginStatus = -1): self
     {
         return new self(200, self::encode([
             'success'  => true,
             'message'  => null,
             'messages' => null,
-            'data'     => ['html' => $html, 'pluginuptodate' => -1],
+            'data'     => ['html' => $html, 'pluginuptodate' => $pluginStatus],
         ]), $kind);
     }
 
