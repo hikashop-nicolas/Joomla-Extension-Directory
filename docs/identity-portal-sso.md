@@ -57,7 +57,8 @@ responses or both, how sign out works, and how a new site is registered. These a
 com_sso cannot be reused, since it targets Joomla 3 and PHP 7. Candidates to evaluate before choosing:
 SimpleSAMLphp 2 as a library, OneLogin php-saml, and simplesamlphp/saml2. The choice is made after
 the IDP answers (signing, binding, logout), and after checking each one's PHP 8.3 to 8.5 support and
-maintenance. Whatever is chosen is installed through Composer into the plugin, and covered by the
+maintenance. Whatever is chosen is installed through Composer into the plugin and added to the
+dependency audit.
 existing audit job.
 
 ### Matching a person to a JED user
