@@ -24,7 +24,6 @@ describe('Install Joomla and JED sample data', () => {
     cy.enablePlugin('Smart Search - JED')
     cy.enablePlugin('JED - Default Score Average')
     cy.enablePlugin('Privacy - JED')
-    cy.enablePlugin('Privacy - JED Tickets')
     cy.enablePlugin('JED - Queue Tasks')
 
     // The "Install Sample Data" widget lives on the admin Home Dashboard, one row (and one

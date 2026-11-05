@@ -15,7 +15,7 @@ describe('Workflow part 10: admin tokens', { testIsolation: false }, () => {
     ['reviews', 'com_jed', 'reviews.saveOrderAjax'],
     ['extensions', 'com_jed', 'extensions.saveOrderAjax'],
     ['extension images', 'com_jed', 'extensionimages.saveOrderAjax'],
-    ['tickets', 'com_tickets', 'tickets.saveOrderAjax'],
+    ['tickets', 'com_jed', 'tickets.saveOrderAjax'],
   ]
 
   it('refuses a saveOrderAjax request that carries no token', () => {
